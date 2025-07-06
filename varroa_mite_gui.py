@@ -1947,7 +1947,7 @@ class ModernVarroaDetectorGUI:
             # Add text with detection count
             num_detections = len(boxes)
             text = f"{num_detections} varroa mite{'s' if num_detections != 1 else ''} detected"
-            if self.current_image in self.image_viewer.roi_polygons:
+            if image_name in self.image_viewer.roi_polygons:
                 text += " in ROI"
 
             # Settings for text background
@@ -1976,10 +1976,6 @@ class ModernVarroaDetectorGUI:
             cv2.putText(image, text, (text_x, text_y), font, font_scale, (0, 0, 0), font_thickness)
 
             # If there's a ROI, draw it on the saved image
-#            if self.current_image in self.image_viewer.roi_polygons:
-            print(image_path)
-            print(self.image_viewer.roi_polygons)
-            print(image_name)
             if image_name in self.image_viewer.roi_polygons:
                 points = self.image_viewer.roi_polygons[image_name]
                 points = [(int(x), int(y)) for x, y in points]  # Convert to integer coordinates
@@ -2364,7 +2360,6 @@ class ModernVarroaDetectorGUI:
             self.update_box_statistics()
 
             # Initiate all checkbox green lines to False and threshold to 0.1
-            print("LISTA", self.image_listbox.fullnames)
             for filename in self.image_listbox.fullnames:
                 self.green_line_enabled[filename] = False
                 self.image_confidence_thresholds[filename] = 0.1
