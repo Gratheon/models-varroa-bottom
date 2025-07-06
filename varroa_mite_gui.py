@@ -2356,12 +2356,29 @@ class ModernVarroaDetectorGUI:
             # Run detection
             self.run_detection()
 
+
+            # Enable the listbox after processing is complete
+            self.image_listbox.configure(state="normal")
+            self.update_image_list()
+            # Update statistics with the newly loaded boxes
+            self.update_box_statistics()
+
             # Initiate all checkbox green lines to False and threshold to 0.1
+            print("LISTA", self.image_listbox.fullnames)
             for filename in self.image_listbox.fullnames:
                 self.green_line_enabled[filename] = False
                 self.image_confidence_thresholds[filename] = 0.1
                 # Load all boxes:
                 self.current_boxes[filename] = self.load_boxes_for_image(filename)
+
+            # Enable both save and apply-to-all buttons after successful analysis
+            self.save_button.configure(state="normal")
+            self.apply_all_button.configure(state="normal")
+            self.green_lines_checkbox.configure(state="normal")
+            self.apply_green_lines_all_button.configure(state="normal")
+
+            if hasattr(self, 'image_viewer'):
+                self.image_viewer.update_canvas_message("Select an image to begin")
 
 
 
@@ -2520,21 +2537,6 @@ class ModernVarroaDetectorGUI:
             print("\nTotal varroas detected:", suma)
 
             self.update_progress(1.0, "Analysis complete")
-            # Enable the listbox after processing is complete
-            self.image_listbox.configure(state="normal")
-            self.update_image_list()
-            # Update statistics with the newly loaded boxes
-            self.update_box_statistics()
-
-
-            # Enable both save and apply-to-all buttons after successful analysis
-            self.save_button.configure(state="normal")
-            self.apply_all_button.configure(state="normal")
-            self.green_lines_checkbox.configure(state="normal")
-            self.apply_green_lines_all_button.configure(state="normal")
-
-            if hasattr(self, 'image_viewer'):
-                self.image_viewer.update_canvas_message("Select an image to begin")
 
         except Exception as e:
             print(f"Error in detection: {str(e)}")
