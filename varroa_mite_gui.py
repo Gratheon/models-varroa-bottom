@@ -3061,7 +3061,7 @@ class ModernVarroaDetectorGUI:
 
         version_label = ctk.CTkLabel(
             version_frame,
-            text="Version 0.0.2-Beta",
+            text="Version 0.0.2",
             font=("Inter", 12),
             text_color=COLORS['secondary']
         )
