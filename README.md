@@ -1,26 +1,25 @@
 # VarroDetector
 
-<p>VarroDetector is an open-source tool designed to identify and count Varroa mites in images of sticky sheets taken with smartphones.
-The software runs in low-range computers (no GPU is needed). Neither installation nor internet connection is needed, just double-click
+<p>VarroDetector is a <b>free and open-source</b> tool designed to identify and count Varroa mites in images of sticky sheets taken with smartphones.
+The software runs in low-range computers (no GPU is needed). **Neither installation nor internet connection is needed**, just double-click
 on the executable.</p>
 
 <p>The detection process is based on a YOLO nano model (currently, YOLOv11 nano) specifically trained on hundreds of images to identify Varroa mites.</p>
+
+##  🟢 🐝  Benefits
+
+The well-known beekeeper <b>[The Apiarist](https://theapiarist.org/)</b> has written <b>[a post about the program](https://theapiarist.org/ai-and-beekeeping-counting-mites/)</b> on his popular blog, highlighting its ease of use and showing how it works, with comments such as:
+- *"I'm sure there will be (and maybe already are) other AI applications that benefit bees or beekeepers, but **this is the first that I've seen that is both practical and relevant**."*
+- *"I've only analysed a few of my own images so far, but **it’s far more impressive than anything I've seen before**. It's easy and quick to load and automatically process the images, then scan them visually for any glaring omissions or inclusions."*
+
+
+
 
 <kbd>
 <img src="readme_video.gif" alt="VarroDetector example"/>
 </kbd>
 
-## Features
-
-- **String Detection**: Automatically identifies and crops images based on guide strings
-- **AI-powered Detection**: Uses YOLO nano learning model to identify Varroa mites
-- **Confidence Threshold**: Adjustable detection sensitivity per image or globally
-- **Region of Interest (ROI)**: Define specific areas for mite counting
-- **Subfolder Support**: Processes nested folder structures
-- **Comprehensive Statistics**: Per-image, subfolder, and total counts
-- **Raw File Support**: Processes both JPG and DNG camera files
-
-### Execution Options
+## ⚡ Execution Options
 
 #### Option 1: Executable File (Recommended)
 1. Download the VarroDetector executable file for [Windows](https://github.com/jodivaso/varrodetector/releases/download/v0.0.2/VarroDetector.exe) or for [Linux](https://unirioja-my.sharepoint.com/:u:/g/personal/jodivaso_unirioja_es/EVza3D-1f75Iho4fNZDXE0oBI0Y7Zp4Nh5FfCnsU5pR5jQ?e=VkFVKT) (MacOS coming soon).
@@ -44,12 +43,47 @@ pip install -r requirements.txt
 python varroa_mite_gui.py
 ```
 
-### User's manual
+
+## 📖 Citation
+
+If you use this software, please cite this paper:
+
+Yániz, J., Casalongue, M., Martinez-de-Pison, F. J., Silvestre, M. A., Consortium, B., Santolaria, P., & Divasón, J. (2025). *An AI-Based Open-Source Software for Varroa Mite Fall Analysis in Honeybee Colonies*. Agriculture, 15(9), 969. https://doi.org/10.3390/agriculture15090969
+
+Bibtex:
+```
+@article{VarroDetector,
+  title = {An AI-Based Open-Source Software for Varroa Mite Fall Analysis in Honeybee Colonies},
+  volume = {15},
+  ISSN = {2077-0472},
+  url = {http://dx.doi.org/10.3390/agriculture15090969},
+  DOI = {10.3390/agriculture15090969},
+  number = {9},
+  journal = {Agriculture},
+  publisher = {MDPI AG},
+  author = {Yániz,  Jesús and Casalongue,  Matías and Martinez-de-Pison, Francisco Javier and Silvestre,
+Miguel Angel and Consortium,  Beeguards and Santolaria,  Pilar and Divasón,  Jose},
+  year = {2025}
+}
+```
+
+## Features
+
+- **String Detection**: Automatically identifies and crops images based on guide strings
+- **AI-powered Detection**: Uses YOLO nano learning model to identify Varroa mites
+- **Confidence Threshold**: Adjustable detection sensitivity per image or globally
+- **Region of Interest (ROI)**: Define specific areas for mite counting
+- **Subfolder Support**: Processes nested folder structures
+- **Comprehensive Statistics**: Per-image, subfolder, and total counts
+- **Raw File Support**: Processes both JPG and DNG camera files
+
+
+## User's manual
 
 The program is very easy to use; however, you can [click here](https://unirioja-my.sharepoint.com/:b:/g/personal/jodivaso_unirioja_es/EcD0rAZJ49pHrSW40yprr2sBtFBxz5tAsLZVexBZqLI4cA?e=tb5JJv) 
 to download the user's manual in PDF format.
 
-### Controls
+## Controls
 
 - **Zoom**: Mouse wheel
 - **Pan**: Middle mouse button
@@ -58,7 +92,7 @@ to download the user's manual in PDF format.
 - **Hide detections**: Press and hold 'h' key
 - **View different images**: Click on image names in the list
 
-### Working with Regions of Interest (ROI)
+## Working with Regions of Interest (ROI)
 
 1. Select an image
 2. Click "Edit ROI"
@@ -67,7 +101,7 @@ to download the user's manual in PDF format.
 5. Statistics will update to count only mites within the ROI
 6. Right click to delete the current ROI
 
-### Saving Results
+## Saving Results
 
 When you click "Save Results", a new folder named "results" will be created in your input folder containing:
 
@@ -96,29 +130,6 @@ When you click "Save Results", a new folder named "results" will be created in y
 ## Sample images
 
 Some sample images to test the program can be downloaded [from here.](https://unirioja-my.sharepoint.com/:u:/g/personal/jodivaso_unirioja_es/EREh4ExsQDNEtqyid0AeL_ABldNzCcpmlQ4J-SzsjvT07w?e=5c65BJ) 
-
-## Citation
-
-If you use this software, please cite this paper:
-
-Yániz, J., Casalongue, M., Martinez-de-Pison, F. J., Silvestre, M. A., Consortium, B., Santolaria, P., & Divasón, J. (2025). *An AI-Based Open-Source Software for Varroa Mite Fall Analysis in Honeybee Colonies*. Agriculture, 15(9), 969. https://doi.org/10.3390/agriculture15090969
-
-Bibtex:
-```
-@article{VarroDetector,
-  title = {An AI-Based Open-Source Software for Varroa Mite Fall Analysis in Honeybee Colonies},
-  volume = {15},
-  ISSN = {2077-0472},
-  url = {http://dx.doi.org/10.3390/agriculture15090969},
-  DOI = {10.3390/agriculture15090969},
-  number = {9},
-  journal = {Agriculture},
-  publisher = {MDPI AG},
-  author = {Yániz,  Jesús and Casalongue,  Matías and Martinez-de-Pison, Francisco Javier and Silvestre,
-Miguel Angel and Consortium,  Beeguards and Santolaria,  Pilar and Divasón,  Jose},
-  year = {2025}
-}
-```
 
 ## Acknowledgments
 
