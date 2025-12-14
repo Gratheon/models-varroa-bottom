@@ -43,6 +43,97 @@ pip install -r requirements.txt
 python varroa_mite_gui.py
 ```
 
+#### Option 3: HTTP Server (API/Integration)
+For programmatic access and integration with other systems, you can run the HTTP inference server:
+
+1. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+2. Run the server:
+```bash
+python server.py
+```
+
+The server will start on **port 8750** and provide a REST API for varroa mite detection.
+
+**Docker deployment:**
+```bash
+docker-compose up -d
+```
+
+### API Documentation
+
+**Endpoint:** `POST /`
+
+**Request:**
+- Method: POST
+- Content-Type: `multipart/form-data`
+- Body: Form field named `file` containing the image
+
+**Example using curl:**
+```bash
+curl -X POST -F "file=@your_image.jpg" http://localhost:8750
+```
+
+**Example using Python:**
+```python
+import requests
+
+with open("sticky_sheet.jpg", "rb") as f:
+    response = requests.post("http://localhost:8750", files={"file": f})
+    data = response.json()
+    print(f"Found {data['count']} varroa mites")
+    for detection in data['result']:
+        print(f"  - Confidence: {detection['confidence']:.2f} at ({detection['x1']:.0f}, {detection['y1']:.0f})")
+```
+
+**Response Schema:**
+
+Success response with detections:
+```json
+{
+  "message": "File processed successfully",
+  "count": 8,
+  "result": [
+    {
+      "x1": 2193.93,
+      "y1": 3836.99,
+      "x2": 2257.26,
+      "y2": 3905.64,
+      "confidence": 0.9389,
+      "class": 0,
+      "class_name": "varroa_mite"
+    }
+  ]
+}
+```
+
+Response with no detections:
+```json
+{
+  "message": "No varroa mites detected",
+  "result": []
+}
+```
+
+**Response Fields:**
+- `message` (string): Human-readable status message
+- `count` (integer): Number of varroa mites detected
+- `result` (array): List of detection objects
+  - `x1`, `y1` (float): Top-left corner coordinates in pixels
+  - `x2`, `y2` (float): Bottom-right corner coordinates in pixels
+  - `confidence` (float): Detection confidence score (0.0 to 1.0)
+  - `class` (integer): Class ID (always 0 for varroa_mite)
+  - `class_name` (string): Class name ("varroa_mite")
+
+**Model Parameters:**
+- Confidence threshold: 0.1 (10%)
+- IoU threshold: 0.5
+- Image size: 6016 pixels
+- Max detections: 2000 per image
+
 
 ## 📖 Citation
 
@@ -128,8 +219,8 @@ When you click "Save Results", a new folder named "results" will be created in y
 - **name_images**: List of image filenames
 
 ## Sample images
+Check [Sample images] folder
 
-Some sample images to test the program can be downloaded [from here.](https://unirioja-my.sharepoint.com/:u:/g/personal/jodivaso_unirioja_es/EREh4ExsQDNEtqyid0AeL_ABldNzCcpmlQ4J-SzsjvT07w?e=5c65BJ) 
 
 ## Acknowledgments
 

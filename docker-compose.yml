@@ -1,0 +1,12 @@
+services:
+  models-varroa-bottom:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - ENV_ID=prod
+    ports:
+      - 8750:8750
+    restart: always
+    network_mode: host
+
