@@ -1,20 +1,18 @@
-FROM ubuntu:22.04
+FROM python:3.11-slim
 
-ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y \
-    python3 \
-    python3-pip \
-    ffmpeg \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libglib2.0-0 \
     libsm6 \
     libxext6 \
-    libgl1-mesa-glx \
-    git \
+    libxrender-dev \
+    libgomp1 \
+    libgl1 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-COPY requirements.txt /app/requirements.txt
-RUN pip3 install --no-cache-dir -r /app/requirements.txt
+COPY requirements-server.txt /app/requirements-server.txt
+RUN pip3 install --no-cache-dir -r /app/requirements-server.txt
 
 COPY detect.py /app/detect.py
 COPY server.py /app/server.py
