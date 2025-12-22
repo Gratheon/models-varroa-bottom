@@ -15,7 +15,7 @@ COPY requirements-server.txt /app/requirements-server.txt
 RUN pip3 install --no-cache-dir -r /app/requirements-server.txt
 
 COPY detect.py /app/detect.py
-COPY server.py /app/server.py
+COPY server_flask.py /app/server.py
 COPY model /app/model
 
 EXPOSE 8750

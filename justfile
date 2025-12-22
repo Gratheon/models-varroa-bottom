@@ -1,8 +1,14 @@
 start:
-	COMPOSE_PROJECT_NAME=gratheon docker compose up --build
+	COMPOSE_PROJECT_NAME=gratheon docker compose -f docker-compose.dev.yml up --build
+
+start-prod:
+	COMPOSE_PROJECT_NAME=gratheon docker compose -f docker-compose.prod.yml up --build
 
 stop:
-	COMPOSE_PROJECT_NAME=gratheon docker compose down
+	COMPOSE_PROJECT_NAME=gratheon docker compose -f docker-compose.dev.yml down
+
+stop-prod:
+	COMPOSE_PROJECT_NAME=gratheon docker compose -f docker-compose.prod.yml down
 
 run-local:
 	python3 server.py

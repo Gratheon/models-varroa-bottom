@@ -4,8 +4,9 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      - ENV_ID=dev
+      - ENV_ID=prod
     ports:
       - 8750:8750
     restart: always
+    network_mode: host
 
