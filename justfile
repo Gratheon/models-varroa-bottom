@@ -18,5 +18,5 @@ test:
 	@curl -s http://localhost:8750 | head -10
 
 logs:
-	docker compose logs -f
+	docker compose -f docker-compose.dev.yml logs -f
 

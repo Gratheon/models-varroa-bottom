@@ -1,71 +1,72 @@
-# VarroDetector
+# models-varroa-bottom
 
-<p>VarroDetector is a <b>free and open-source</b> tool designed to identify and count Varroa mites in images of sticky sheets taken with smartphones.
-The software runs in low-range computers (no GPU is needed). **Neither installation nor internet connection is needed**, just double-click
-on the executable.</p>
+Varroa mite detection service for Gratheon's hive bottom board analysis. This microservice provides a Flask-based HTTP API that uses YOLOv11-nano model to detect and count varroa mites in bottom board images.
 
-<p>The detection process is based on a YOLO nano model (currently, YOLOv11 nano) specifically trained on hundreds of images to identify Varroa mites.</p>
+## Architecture
 
-##  🟢 🐝  Benefits
+This service is part of the Gratheon platform's varroa detection pipeline:
 
-The well-known beekeeper <b>[The Apiarist](https://theapiarist.org/)</b> has written <b>[a post about the program](https://theapiarist.org/ai-and-beekeeping-counting-mites/)</b> on his popular blog, highlighting its ease of use and showing how it works, with comments such as:
-- *"I'm sure there will be (and maybe already are) other AI applications that benefit bees or beekeepers, but **this is the first that I've seen that is both practical and relevant**."*
-- *"I've only analysed a few of my own images so far, but **it’s far more impressive than anything I've seen before**. It's easy and quick to load and automatically process the images, then scan them visually for any glaring omissions or inclusions."*
-
-
-
-
-<kbd>
-<img src="readme_video.gif" alt="VarroDetector example"/>
-</kbd>
-
-## ⚡ Execution Options
-
-#### Option 1: Executable File (Recommended)
-1. Download the VarroDetector executable file for [Windows](https://github.com/jodivaso/varrodetector/releases/download/v0.0.2/VarroDetector.exe) or for [Linux](https://unirioja-my.sharepoint.com/:u:/g/personal/jodivaso_unirioja_es/EVza3D-1f75Iho4fNZDXE0oBI0Y7Zp4Nh5FfCnsU5pR5jQ?e=VkFVKT) (MacOS coming soon).
-2. Run the executable file
-
-*Note:* This file is self-contained, so the application takes a few seconds to start since the contents must be unzipped on the fly.
-
-#### Option 2: Run from Source
-1. Clone this repository
-```bash
-git clone https://github.com/jodivaso/VarroDetector.git
+```mermaid
+graph TB
+    A[web-app UI] -->|1. Upload image| B[graphql-router]
+    A -->|2. Link to box| B
+    B --> C[image-splitter]
+    C -->|Store file| D[(MySQL - files)]
+    C -->|Upload to S3| E[AWS S3/MinIO]
+    C -->|Create job| F[Job Queue - TYPE_VARROA_BOTTOM]
+    F -->|Process| G[detectVarroaBottom worker]
+    G -->|Download image| E
+    G -->|HTTP POST multipart| H[models-varroa-bottom:8750<br/>Flask + YOLOv11]
+    H -->|JSON response| G
+    G -->|Store results| I[(MySQL - varroa_bottom_detections)]
+    G -->|Publish event| J[Redis PubSub]
+    J -->|Real-time update| A
 ```
 
-2. Install the required dependencies:
+### Components
+- **Flask HTTP Server** (`server_flask.py`) - Handles multipart/form-data uploads on port 8750
+- **YOLOv11 Detection** (`detect.py`) - Runs inference using trained model
+- **Model Weights** (`model/weights/best.pt`) - YOLOv11-nano trained on varroa mite images
+
+### Model Parameters
+- Confidence threshold: 0.1 (10%)
+- IoU threshold: 0.5
+- Image size: 6016 pixels
+- Max detections: 2000 per image
+
+## Deployment
+
+### Docker (Development)
+```bash
+just start
+```
+
+Or manually:
+```bash
+COMPOSE_PROJECT_NAME=gratheon docker compose -f docker-compose.dev.yml up --build
+```
+
+### Docker (Production)
+```bash
+just start-prod
+```
+
+Or manually:
+```bash
+COMPOSE_PROJECT_NAME=gratheon docker compose -f docker-compose.prod.yml up --build
+```
+
+### Local Development
 ```bash
 pip install -r requirements.txt
-```
-
-3. Run the application:
-```bash
-python varroa_mite_gui.py
-```
-
-#### Option 3: HTTP Server (API/Integration)
-For programmatic access and integration with other systems, you can run the HTTP inference server:
-
-1. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-2. Run the server:
-```bash
 python server.py
 ```
 
-The server will start on **port 8750** and provide a REST API for varroa mite detection.
+The server will start on **port 8750**.
 
-**Docker deployment:**
-```bash
-docker-compose up -d
-```
+## API Documentation
 
-### API Documentation
-
-**Endpoint:** `POST /`
+### Endpoint: `POST /`
 
 **Request:**
 - Method: POST
@@ -89,9 +90,9 @@ with open("sticky_sheet.jpg", "rb") as f:
         print(f"  - Confidence: {detection['confidence']:.2f} at ({detection['x1']:.0f}, {detection['y1']:.0f})")
 ```
 
-**Response Schema:**
+### Response Schema
 
-Success response with detections:
+**Success response with detections:**
 ```json
 {
   "message": "File processed successfully",
@@ -110,11 +111,12 @@ Success response with detections:
 }
 ```
 
-Response with no detections:
+**Response with no detections:**
 ```json
 {
   "message": "No varroa mites detected",
-  "result": []
+  "result": [],
+  "count": 0
 }
 ```
 
@@ -128,21 +130,85 @@ Response with no detections:
   - `class` (integer): Class ID (always 0 for varroa_mite)
   - `class_name` (string): Class name ("varroa_mite")
 
-**Model Parameters:**
-- Confidence threshold: 0.1 (10%)
-- IoU threshold: 0.5
-- Image size: 6016 pixels
-- Max detections: 2000 per image
+**Error responses:**
+```json
+{"message": "Missing 'file' field in form data"}
+{"message": "No file selected"}
+```
 
+## Testing
 
-## 📖 Citation
+### Quick Test
+```bash
+just test
+```
 
-If you use this software, please cite this paper:
+Or manually:
+```bash
+curl -X POST -F "file=@Sample images/IMG_6098.jpg" http://localhost:8750
+```
+
+### View Logs
+```bash
+just logs
+```
+
+## Development Commands
+
+Available `just` commands:
+- `just start` - Start development environment
+- `just start-prod` - Start production environment
+- `just stop` - Stop development environment
+- `just stop-prod` - Stop production environment
+- `just run-local` - Run server locally without Docker
+- `just test` - Test server with GET request
+- `just logs` - View container logs
+
+## Integration with Gratheon
+
+This service is called by the `image-splitter` service when processing bottom board images:
+
+1. User uploads bottom board image via `web-app`
+2. `graphql-router` routes request to `image-splitter`
+3. `image-splitter` stores file and creates `TYPE_VARROA_BOTTOM` job
+4. `detectVarroaBottom` worker downloads image and calls this service
+5. This service returns detection results
+6. Worker stores results in MySQL and publishes event to Redis
+7. `web-app` receives real-time update via WebSocket subscription
+
+See [Varroa Bottom Detection Documentation](https://github.com/Gratheon/gratheon/blob/master/docs/web-app/features/varroa-bottom-detection.md) for full technical details.
+
+## Configuration
+
+### Network Modes
+- **Development**: Default Docker bridge network (service accessible via `models-varroa-bottom:8750`)
+- **Production**: Host network mode (`localhost:8750`) - configured in `docker-compose.prod.yml`
+
+### Environment Variables
+- `ENV_ID`: `dev` or `prod` (set in docker-compose files)
+
+## Performance
+
+- Processing time: 5-15 seconds per image on CPU
+- Memory usage: ~2 GB RAM
+- CPU usage: <10% during inference
+- No GPU required
+
+## Sample Images
+
+Sample bottom board images are available in the `Sample images/` directory for testing.
+
+## Upstream Project
+
+This service is based on [VarroDetector](https://github.com/jodivaso/VarroDetector), an open-source tool designed to identify and count Varroa mites in images of sticky sheets. The original project includes a desktop GUI application and was created by researchers at the University of La Rioja and University of Zaragoza.
+
+### Citation
+
+If you use this detection model, please cite the original research paper:
 
 Yániz, J., Casalongue, M., Martinez-de-Pison, F. J., Silvestre, M. A., Consortium, B., Santolaria, P., & Divasón, J. (2025). *An AI-Based Open-Source Software for Varroa Mite Fall Analysis in Honeybee Colonies*. Agriculture, 15(9), 969. https://doi.org/10.3390/agriculture15090969
 
-Bibtex:
-```
+```bibtex
 @article{VarroDetector,
   title = {An AI-Based Open-Source Software for Varroa Mite Fall Analysis in Honeybee Colonies},
   volume = {15},
@@ -152,85 +218,22 @@ Bibtex:
   number = {9},
   journal = {Agriculture},
   publisher = {MDPI AG},
-  author = {Yániz,  Jesús and Casalongue,  Matías and Martinez-de-Pison, Francisco Javier and Silvestre,
-Miguel Angel and Consortium,  Beeguards and Santolaria,  Pilar and Divasón,  Jose},
+  author = {Yániz, Jesús and Casalongue, Matías and Martinez-de-Pison, Francisco Javier and Silvestre, Miguel Angel and Consortium, Beeguards and Santolaria, Pilar and Divasón, Jose},
   year = {2025}
 }
 ```
 
-## Features
+### Original Project Acknowledgments
 
-- **String Detection**: Automatically identifies and crops images based on guide strings
-- **AI-powered Detection**: Uses YOLO nano learning model to identify Varroa mites
-- **Confidence Threshold**: Adjustable detection sensitivity per image or globally
-- **Region of Interest (ROI)**: Define specific areas for mite counting
-- **Subfolder Support**: Processes nested folder structures
-- **Comprehensive Statistics**: Per-image, subfolder, and total counts
-- **Raw File Support**: Processes both JPG and DNG camera files
-
-
-## User's manual
-
-The program is very easy to use; however, you can [click here](https://unirioja-my.sharepoint.com/:b:/g/personal/jodivaso_unirioja_es/EcD0rAZJ49pHrSW40yprr2sBtFBxz5tAsLZVexBZqLI4cA?e=tb5JJv) 
-to download the user's manual in PDF format.
-
-## Controls
-
-- **Zoom**: Mouse wheel
-- **Pan**: Middle mouse button
-- **Add mite manually**: Left click and drag
-- **Delete mite**: Right click on detection box
-- **Hide detections**: Press and hold 'h' key
-- **View different images**: Click on image names in the list
-
-## Working with Regions of Interest (ROI)
-
-1. Select an image
-2. Click "Edit ROI"
-3. Left click to add points around your area of interest
-4. Double click to complete the polygon (will be drawn in yellow)
-5. Statistics will update to count only mites within the ROI
-6. Right click to delete the current ROI
-
-## Saving Results
-
-When you click "Save Results", a new folder named "results" will be created in your input folder containing:
-
-- **images/**: All processed images with visible detection boxes
-- **labels/**: YOLO format text files with detection coordinates
-- **roi.txt**: A text file containing the points of the Region of Interest of the images
-- **statistics.csv**: Detailed counts for each image
-- **statistics_subfolders.csv**: Summary statistics by subfolder
-
-## Output Format
-
-### statistics.csv
-- **filename**: Relative path to the image
-- **threshold**: Confidence threshold used for detection
-- **varroa_count**: Number of mites detected in this image
-- **subfolder_count**: Total mites in this image's subfolder
-- **total_count**: Total mites across all images
-
-### statistics_subfolders.csv
-- **folder_name**: Subfolder path
-- **num_varroa_mites_folder**: Total mites detected in this subfolder
-- **threshold**: Confidence threshold(s) used
-- **num_images**: Number of images in this subfolder
-- **name_images**: List of image filenames
-
-## Sample images
-Check [Sample images] folder
-
-
-## Acknowledgments
-
-This research has been funded by: 
+The original VarroDetector research was funded by:
 - Grant INICIA2023/02 by La Rioja Government (Spain)
 - MCIU/AEI/10.13039/501100011033 (grant PID2023-148475OB-I00)
 - The EU Horizon Europe (grant 101082073)
 - The DGA-FSE (grant A07_23R)
 
+<img src="ur_logo.png" alt="University of La Rioja" width="200"/>&nbsp;&nbsp;&nbsp;&nbsp;<img src="unizar_logo.png" alt="University of Zaragoza" width="200"/>&nbsp;&nbsp;&nbsp;&nbsp;<img src="beeguards_logo.png" alt="BeeGuards" width="120" />
+
 ## License
+
 This software uses a YOLOv11 nano model; thus, it is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0).
 
-<img src="ur_logo.png" alt="University of La Rioja" width="200"/>&nbsp;&nbsp;&nbsp;&nbsp;<img src="unizar_logo.png" alt="University of Zaragoza" width="200"/>&nbsp;&nbsp;&nbsp;&nbsp;<img src="beeguards_logo.png" alt="BeeGuards" width="120" />

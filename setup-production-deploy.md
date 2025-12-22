@@ -9,6 +9,8 @@ Set up GitHub workflow deployment for models-varroa-bottom similar to models-bee
 - [x] Create .github/workflows/deploy.yml
 - [x] Create restart.sh script
 - [x] Fix branches array syntax in workflow
+- [x] Remove redundant docker-compose.yml
+- [x] Update README.md to focus on Gratheon integration with architecture diagram
 - [ ] Test deployment workflow (user to verify)
 
 ## Implementation Details
@@ -36,5 +38,8 @@ Set up GitHub workflow deployment for models-varroa-bottom similar to models-bee
 ## Files Changed
 - `.github/workflows/deploy.yml` (new)
 - `restart.sh` (new)
+- `docker-compose.yml` (removed - redundant, using docker-compose.dev.yml and docker-compose.prod.yml)
+- `README.md` (rewritten - focused on Gratheon integration, moved VarroDetector attribution to end, added architecture diagram)
+- `justfile` (updated logs command to use docker-compose.dev.yml)
 - `setup-production-deploy.md` (new - this file)
 
