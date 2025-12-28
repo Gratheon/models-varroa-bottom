@@ -11,12 +11,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-COPY requirements-server.txt /app/requirements-server.txt
-RUN pip3 install --no-cache-dir -r /app/requirements-server.txt
+COPY requirements-server.txt .
+RUN pip3 install --no-cache-dir -r requirements-server.txt && \
+    pip3 cache purge && \
+    rm -rf /root/.cache/pip
 
-COPY detect.py /app/detect.py
-COPY server_flask.py /app/server.py
-COPY model /app/model
+COPY detect.py ./
+COPY server_flask.py server.py
+COPY model/ ./model/
 
 EXPOSE 8750
 

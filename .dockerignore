@@ -33,4 +33,8 @@ icon_for_sidebar.png
 icon_for_sidebar.svg
 icon_with_borders.svg
 varroa_mite_gui.py
-
+docker-compose*.yml
+Dockerfile.backup
+Sample images/
+setup-production-deploy.md
+requirements.txt
