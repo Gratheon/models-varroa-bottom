@@ -17,9 +17,6 @@ WORKDIR /app
 
 COPY requirements-server.txt .
 
-# Keep runtime lean:
-# - force CPU-only torch wheels when available (avoids CUDA dependency bloat)
-# - install ultralytics without optional deps not needed for inference
 RUN set -eux; \
     pip3 install --upgrade pip; \
     (pip3 install --index-url https://download.pytorch.org/whl/cpu torch torchvision || pip3 install torch torchvision); \
