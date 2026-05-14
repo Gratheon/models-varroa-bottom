@@ -25,6 +25,7 @@ RUN set -eux; \
     (pip3 install --index-url https://download.pytorch.org/whl/cpu torch torchvision || pip3 install torch torchvision); \
     pip3 install \
       flask \
+      gratheon-log-lib@https://github.com/Gratheon/log-lib-py/archive/03b30ba.zip \
       numpy \
       opencv-python-headless \
       pillow \

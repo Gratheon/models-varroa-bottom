@@ -58,8 +58,8 @@ COMPOSE_PROJECT_NAME=gratheon docker compose -f docker-compose.prod.yml up --bui
 
 ### Local Development
 ```bash
-pip install -r requirements.txt
-python server.py
+pip install -r requirements-server.txt
+python server_flask.py
 ```
 
 The server will start on **port 8750**.
@@ -187,6 +187,14 @@ See [Varroa Bottom Detection Documentation](https://github.com/Gratheon/gratheon
 ### Environment Variables
 - `ENV_ID`: `dev` or `prod` (set in docker-compose files)
 
+## Logging Dependency
+
+This service installs the shared Python logger directly from GitHub via [`requirements-server.txt`](/Users/artjom/git/gratheon/models-varroa-bottom/requirements-server.txt):
+
+```txt
+gratheon-log-lib @ https://github.com/Gratheon/log-lib-py/archive/03b30ba.zip
+```
+
 ## Performance
 
 - Processing time: 5-15 seconds per image on CPU
@@ -236,4 +244,3 @@ The original VarroDetector research was funded by:
 ## License
 
 This software uses a YOLOv11 nano model; thus, it is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0).
-

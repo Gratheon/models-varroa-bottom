@@ -1,16 +1,16 @@
 import numpy as np
 import cv2
 from ultralytics import YOLO
-import datetime
+from gratheon_log_lib import error, info, warn
 
 model = None
 
 def load_model(weights_path="/app/model/weights/best.pt"):
     global model
     if model is None:
-        print(f"[{datetime.datetime.now()}] Loading model from {weights_path}", flush=True)
+        info("loading varroa bottom model", {"weights_path": weights_path})
         model = YOLO(weights_path, verbose=False)
-        print(f"[{datetime.datetime.now()}] Model loaded successfully", flush=True)
+        info("varroa bottom model loaded successfully")
     return model
 
 def run(weights="/app/model/weights/best.pt", image_buffer=None, conf_thres=0.1, iou_thres=0.5, imgsz=6016, max_det=2000):
@@ -20,19 +20,27 @@ def run(weights="/app/model/weights/best.pt", image_buffer=None, conf_thres=0.1,
         model = load_model(weights)
 
     if image_buffer is None:
-        print(f"[{datetime.datetime.now()}] ERROR: image_buffer is None", flush=True)
+        warn("image_buffer is None")
         return []
 
-    print(f"[{datetime.datetime.now()}] Decoding image buffer of size {len(image_buffer)} bytes", flush=True)
+    info("decoding image buffer", {"image_bytes": len(image_buffer)})
     nparr = np.frombuffer(image_buffer, np.uint8)
     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
     if img is None:
-        print(f"[{datetime.datetime.now()}] ERROR: Failed to decode image", flush=True)
+        error("failed to decode image")
         return []
 
-    print(f"[{datetime.datetime.now()}] Image decoded successfully: shape={img.shape}", flush=True)
-    print(f"[{datetime.datetime.now()}] Running inference with imgsz={imgsz}, conf={conf_thres}, iou={iou_thres}, max_det={max_det}", flush=True)
+    info("image decoded successfully", {"shape": img.shape})
+    info(
+        "running inference",
+        {
+            "imgsz": imgsz,
+            "conf_thres": conf_thres,
+            "iou_thres": iou_thres,
+            "max_det": max_det,
+        },
+    )
 
     results = model(
         img,
@@ -43,11 +51,11 @@ def run(weights="/app/model/weights/best.pt", image_buffer=None, conf_thres=0.1,
         verbose=False
     )
 
-    print(f"[{datetime.datetime.now()}] Inference complete, processing results", flush=True)
+    info("inference complete, processing results")
     detections = []
     for result in results:
         if result.boxes is not None and len(result.boxes) > 0:
-            print(f"[{datetime.datetime.now()}] Found {len(result.boxes)} boxes", flush=True)
+            info("boxes found in inference result", {"boxes": len(result.boxes)})
             for box in result.boxes:
                 x1, y1, x2, y2 = box.xyxy[0].tolist()
                 conf = float(box.conf[0])
@@ -63,8 +71,7 @@ def run(weights="/app/model/weights/best.pt", image_buffer=None, conf_thres=0.1,
                     "class_name": "varroa_mite"
                 })
         else:
-            print(f"[{datetime.datetime.now()}] No boxes found in this result", flush=True)
+            info("no boxes found in inference result")
 
-    print(f"[{datetime.datetime.now()}] Total detections: {len(detections)}", flush=True)
+    info("total detections calculated", {"detections": len(detections)})
     return detections
-
