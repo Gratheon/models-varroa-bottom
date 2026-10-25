@@ -185,7 +185,6 @@ def process_green_lines(img, original_img=None, source_name="image"):
 
     for l in lines_sorted[1:]:
         start_point = (l[0], l[1])
-        end_point = (l[2], l[3])
         x_inter, y_inter = findIntersection(x1, y1, x2, y2, *l)
         if x_inter is not None:
             angle = getAngle(start_point, (x_inter, y_inter), (x1, y1))
