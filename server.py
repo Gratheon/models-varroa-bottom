@@ -3,8 +3,6 @@ print(f"[{datetime.datetime.now()}] Script start", flush=True)
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 import json
 import os
-from email import message_from_binary_file
-from io import BytesIO
 from detect import run
 print(f"[{datetime.datetime.now()}] Imports finished", flush=True)
 
